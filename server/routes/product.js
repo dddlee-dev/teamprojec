@@ -67,12 +67,12 @@ router.post('/', (req, res) => {
 router.post('/products', (req, res) => {
 
 
-    let order = req.body.order ? req.body.order : "desc";
-    let sortBy = req.body.sortBy ? req.body.sortBy : "_id";
-    // product collection에 들어 있는 모든 상품 정보를 가져오기 
-    let limit = req.body.limit ? parseInt(req.body.limit) : 20;
-    let skip = req.body.skip ? parseInt(req.body.skip) : 0;
-    let term = req.body.searchTerm
+    let order = req.body.order ? req.body.order : "desc";       //
+    let sortBy = req.body.sortBy ? req.body.sortBy : "_id";     //
+    // product collection에 들어 있는 모든 상품 정보를 가져오기    //
+    let limit = req.body.limit ? parseInt(req.body.limit) : 20; //갯수
+    let skip = req.body.skip ? parseInt(req.body.skip) : 0;     //
+    let term = req.body.searchTerm                              //
 
 
     let findArgs = {};
@@ -92,6 +92,7 @@ router.post('/products', (req, res) => {
             } else {
                 findArgs[key] = req.body.filters[key];
             }
+            console.log(req.body.filters[key][0])
 
         }
     }
@@ -112,18 +113,69 @@ router.post('/products', (req, res) => {
                 })
             })
     } else {
-        Product.find(findArgs)
-            .populate("writer")
-            .sort([[sortBy, order]])
-            .skip(skip)
-            .limit(limit)
-            .exec((err, productInfo) => {
-                if (err) return res.status(400).json({ success: false, err })
-                return res.status(200).json({
-                    success: true, productInfo,
-                    postSize: productInfo.length
-                })
-            })
+        var sql_item = `SELECT * FROM item ;`;
+        var sql_item_s = mysql.format(sql_item);
+       
+    
+        //db.db.query(`SELECT * FROM board WHERE board_category=?`, [filteredId], function(res_board){ 
+        db.db.query(sql_item_s , function(error, re){  
+            var leng = re.length;
+            //console.log(leng);
+            var productInfo = new Object();
+            for (var j = 0; j < leng ; j++)
+            {
+                
+                var data = new Object();
+                var image = new Array();
+
+                data._id = re[j].item_num;
+                data.title=re[j].item_name;
+                data.price = re[j].item_price;
+
+                var string = re[j].item_cover;
+                var slice = string.split(';');
+
+                var i = 0;
+                while(i < slice.length){
+                    image[i] = "uploads/" + slice[i];
+                    i = i + 1;
+                }
+
+                
+                data.images = image;
+                
+                // product._id
+                // product.images
+                // product.title
+                // product.price
+
+                if (!Array.isArray(productInfo)) {
+                    productInfo = [];
+                }
+                
+                productInfo.push(data);
+            }
+            if (error) return res.json({ success: false, err })
+            return res.status(200).json({
+                            success: true, productInfo,
+                            postSize: productInfo.length
+                        })
+        });
+
+
+
+        // Product.find(findArgs)
+        //     .populate("writer")
+        //     .sort([[sortBy, order]])
+        //     .skip(skip)
+        //     .limit(limit)
+        //     .exec((err, productInfo) => {
+        //         if (err) return res.status(400).json({ success: false, err })
+        //         return res.status(200).json({
+        //             success: true, productInfo,
+        //             postSize: productInfo.length
+        //         })
+        //     })
     }
 
 })
@@ -157,13 +209,33 @@ router.get('/products_by_id', (req, res) => {
         var product = new Object();
         var data = new Object();
         var image = new Array();
+        var image2 = new Array();
         
         data.title=re[0].item_name;
         data.price = re[0].item_price;
         data.sold = 0;
-        data.view = 3;
-        image[0]= 'uploads/sun.jpg';
+        data.views = 3;
+        //image[0]= 'uploads/sun.jpg';
+
+        var string = re[0].item_cover;
+        var slice = string.split(';');
+        var i = 0;
+        while(i < slice.length){
+            image[i] = "uploads/" + slice[i];
+            i = i + 1;
+        }
+
         data.images = image;
+
+        var string2 = re[0].item_info;
+        var slice2 = string2.split(';');
+        var i = 0;
+        while(i < slice2.length){
+            image2[i] = "uploads/" +  slice2[i];
+            i = i + 1;
+        }
+        data.desimages = image2;
+        
         
         product = []
         product.push(data);
