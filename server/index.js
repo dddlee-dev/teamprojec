@@ -8,6 +8,11 @@ const cookieParser = require("cookie-parser");
 
 const config = require("./config/key");
 
+var db = require('./lib/db.js');
+var mysql = require('mysql');
+var session = require('express-session');
+var MySQLStore = require('express-mysql-session')(session);
+
 // const mongoose = require("mongoose");
 // mongoose
 //   .connect(config.mongoURI, { useNewUrlParser: true })
@@ -32,6 +37,14 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // support parsing of application/json type post data
 app.use(bodyParser.json());
 app.use(cookieParser());
+
+app.use(session({
+  secret: '1fsgdg34@!$DFfrf@@fsd',
+  resave: false,
+  saveUninitialized: true,
+  store : new MySQLStore(db.db_option)
+
+}))
 
 app.use('/api/users', require('./routes/users'));
 app.use('/api/product', require('./routes/product'));

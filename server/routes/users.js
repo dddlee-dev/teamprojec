@@ -6,6 +6,10 @@ const { Payment } = require("../models/Payment");
 
 const { auth } = require("../middleware/auth");
 const async = require('async');
+var db = require('../lib/db.js');
+var mysql = require('mysql');
+var session = require('express-session');
+var MySQLStore = require('express-mysql-session')(session);
 
 //=================================
 //             User
@@ -28,6 +32,34 @@ router.get("/auth", auth, (req, res) => {
 
 router.post("/register", (req, res) => {
 
+    //console.log(req.body)
+
+    var email = req.body.email;  //아이디로 사용
+    var lastName = req.body.lastName;   //닉네임으로 사용
+    var name = req.body.name;   //이름으로 사용
+    var password = req.body.password;
+
+    // INSERT INTO `user` (`user_num`, `user_id`, `user_pw`, `user_name`, `user_nickname`, `user_addr`, `user_zip`, `user_phone`, `user_machine`, `user_authority`) 
+    // VALUES (NULL, 'ddde', '1', '언', '닉', NULL, '-1', '-1', '0', '0');
+
+    db.db.query(`INSERT INTO user 
+    (user_id, user_pw, user_name, user_nickname, user_zip, user_phone, user_machine, user_authority) 
+    VALUES   (?, ?, ?, ?,?, ?, ?, ?)`,
+    [email, password, name, lastName, -1,-1,0,0],
+    function(error){
+        if(error){
+            console.log(error);
+            return res.json({ success: false, error });
+            throw error;
+        }
+        return res.status(200).json({
+            success: true
+        });
+        // res.writeHead(302, {Location: `/board/community/${filteredId}/0`});
+        // res.end();
+    }); 
+
+    /*
     const user = new User(req.body);
 
     user.save((err, doc) => {
@@ -36,9 +68,103 @@ router.post("/register", (req, res) => {
             success: true
         });
     });
+    */
 });
 
 router.post("/login", (req, res) => {
+    //1 이메일 찾기
+    //없으면 반환
+    //있으면    비밀번호 비교
+    //틀리면 반환
+    // 맞으면   쿠키 형태로 반환
+
+    var id = req.body.email;
+    var pw = req.body.password;
+    console.log(id);
+   
+
+    db.db.query(`SELECT user_num FROM user WHERE user_id=?`,
+    [id],
+    function(error, userid){
+        if(error){
+            
+            return res.json({
+                loginSuccess: false,
+                message: "Auth failed, email not found"
+            });
+            throw error;
+        }
+        if(userid == '')
+        {
+            //console.log("아이디 없음");
+            //res.redirect('login_process_noid');
+            return res.json({
+                loginSuccess: false,
+                message: "Auth failed, email not found"
+            });
+        }
+        else
+        {
+            db.db.query(`SELECT user_num, user_nickname FROM user WHERE user_id=? AND user_pw=? `,
+            [id, pw],
+            function(error, login_res){
+                if(error){
+                    return res.json({ loginSuccess: false, message: "Wrong password" });
+                    throw error;
+                }
+                if(login_res == '')//비번틀림
+                {
+                    return res.json({ loginSuccess: false, message: "Wrong password" });
+                    //res.redirect('login_process_nopw');
+                }
+                else
+                {
+                    req.session.id = req.body.email;
+                    req.session.user_num = login_res[0].user_num;
+                    req.session.user_nickname = login_res[0].user_nickname;
+                    req.session.is_Logined = true;
+                    //console.log(login_res);
+                    req.session.save(function(){
+                        res
+                            
+                            .status(200)
+                            .json({
+                                loginSuccess: true, userId: id
+                            });
+                    });
+
+
+                    //동진 코드
+                    // login_res.generateToken((err, user) => {
+                    //     if (err) return res.status(400).send(err);
+                    //     res.cookie("w_authExp", user.tokenExp);
+                    //     res
+                    //         .cookie("w_auth", user.token)
+                    //         .status(200)
+                    //         .json({
+                    //             loginSuccess: true, userId: user._id
+                    //         });
+                    // });
+
+                    //내코드
+                    // req.session.id = id;
+                    // req.session.user_num = login_res[0].user_num;
+                    // req.session.user_nickname = login_res[0].user_nickname;
+                    // req.session.is_Logined = true;
+                    // //console.log(login_res);
+                    // req.session.save(function(){
+                    //     res.writeHead(302, {Location: `/`});
+                    //     res.end();
+                    // });
+
+                }
+            });
+
+        }
+        
+    }
+    );
+    /*
     User.findOne({ email: req.body.email }, (err, user) => {
         if (!user)
             return res.json({
@@ -62,6 +188,7 @@ router.post("/login", (req, res) => {
             });
         });
     });
+    */
 });
 
 router.get("/logout", auth, (req, res) => {
