@@ -72,15 +72,15 @@ router.post('/products', (req, res) => {
     // product collection에 들어 있는 모든 상품 정보를 가져오기    //
     let limit = req.body.limit ? parseInt(req.body.limit) : 20; //갯수
     let skip = req.body.skip ? parseInt(req.body.skip) : 0;     //
-    let term = req.body.searchTerm                              //
-
+    let term = req.body.searchTerml;                              //
+    //console.log(term);
 
     let findArgs = {};
 
     for (let key in req.body.filters) {
         if (req.body.filters[key].length > 0) {
 
-            console.log('key', key)
+            //console.log('key', key)
 
             if (key === "price") {
                 findArgs[key] = {
@@ -92,13 +92,15 @@ router.post('/products', (req, res) => {
             } else {
                 findArgs[key] = req.body.filters[key];
             }
-            console.log(req.body.filters[key][0])
+           // console.log(req.body.filters[key][0])
+            console.log(findArgs[key])
 
         }
     }
 
 
     if (term) {
+        //console.log(term);
         Product.find(findArgs)
             .find({ $text: { $search: term } })
             .populate("writer")
@@ -113,13 +115,33 @@ router.post('/products', (req, res) => {
                 })
             })
     } else {
-        var sql_item = `SELECT * FROM item ;`;
+        console.log(findArgs.continents);
+        var sql_item = `SELECT * FROM item `;
+           
+        if(findArgs.continents)
+        {
+            sql_item = sql_item + `WHERE `
+            for(var i = 0; i < Object.keys(findArgs.continents).length ;i++)
+            {
+                var cate;
+                cate = findArgs.continents[i];
+                sql_item = sql_item + ` item_category = ${cate}`
+                if(i !==  Object.keys(findArgs.continents).length-1)
+                {
+                    sql_item = sql_item + ` OR`
+                }
+            }
+        }
+        console.log(sql_item);
+
         var sql_item_s = mysql.format(sql_item);
        
     
         //db.db.query(`SELECT * FROM board WHERE board_category=?`, [filteredId], function(res_board){ 
         db.db.query(sql_item_s , function(error, re){  
+            //console.log(re);
             var leng = re.length;
+            //var leng = Object.keys(re).length;
             //console.log(leng);
             var productInfo = new Object();
             for (var j = 0; j < leng ; j++)

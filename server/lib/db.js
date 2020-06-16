@@ -2,8 +2,7 @@ var mysql = require('mysql');
 
 
 var db_option = {
-  //host     : 'dddlee1234.iptime.org',
-  host     : '14.43.214.113',
+  host     : 'dddlee1234.iptime.org',
   user     : 'team',
   password : '111111' ,
   //port     : '7569' , 
