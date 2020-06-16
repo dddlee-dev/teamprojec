@@ -16,17 +16,31 @@ var MySQLStore = require('express-mysql-session')(session);
 //=================================
 
 router.get("/auth", auth, (req, res) => {
+    console.log("auth <");
     res.status(200).json({
-        _id: req.user._id,
-        isAdmin: req.user.role === 0 ? false : true,
+        _id: req.session.user_num,
+        isAdmin: req.session.authority === 0 ? true : false , 
         isAuth: true,
-        email: req.user.email,
-        name: req.user.name,
-        lastname: req.user.lastname,
-        role: req.user.role,
-        image: req.user.image,
-        cart: req.user.cart,
-        history: req.user.history
+        email: req.session.id,
+        name: req.session.user_name,
+        nickname: req.session.user_nickname,
+        // role: req.session.role,
+        // image: req.session.image,
+        cart: req.session.cart,
+        history: req.session.history
+
+        
+
+        // _id: req.user._id,
+        // isAdmin: req.user.role === 0 ? false : true,
+        // isAuth: true,
+        // email: req.user.email,
+        // name: req.user.name,
+        // lastname: req.user.lastname,
+        // role: req.user.role,
+        // image: req.user.image,
+        // cart: req.user.cart,
+        // history: req.user.history
     });
 });
 
@@ -105,7 +119,7 @@ router.post("/login", (req, res) => {
         }
         else
         {
-            db.db.query(`SELECT user_num, user_nickname FROM user WHERE user_id=? AND user_pw=? `,
+            db.db.query(`SELECT user_num, user_nickname, user_authority FROM user WHERE user_id=? AND user_pw=? `,
             [id, pw],
             function(error, login_res){
                 if(error){
@@ -119,10 +133,13 @@ router.post("/login", (req, res) => {
                 }
                 else
                 {
+                    if(req.body.user_authority == 2) req.session.authority = true;
                     req.session.id = req.body.email;
                     req.session.user_num = login_res[0].user_num;
                     req.session.user_nickname = login_res[0].user_nickname;
                     req.session.is_Logined = true;
+                    req.session.cart = [];
+                    req.session.history = [];
                     //console.log(login_res);
                     req.session.save(function(){
                         res
@@ -192,12 +209,21 @@ router.post("/login", (req, res) => {
 });
 
 router.get("/logout", auth, (req, res) => {
-    User.findOneAndUpdate({ _id: req.user._id }, { token: "", tokenExp: "" }, (err, doc) => {
+    req.session.is_Logined = false;
+    console.log("로그아웃 클릭");
+    req.session.destroy(function(err){
         if (err) return res.json({ success: false, err });
-        return res.status(200).send({
-            success: true
-        });
-    });
+            return res.status(200).send({
+                success: true
+            });
+    })
+
+    // User.findOneAndUpdate({ _id: req.user._id }, { token: "", tokenExp: "" }, (err, doc) => {
+    //     if (err) return res.json({ success: false, err });
+    //     return res.status(200).send({
+    //         success: true
+    //     });
+    // });
 });
 
 

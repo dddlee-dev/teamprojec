@@ -93,7 +93,7 @@ router.post('/products', (req, res) => {
                 findArgs[key] = req.body.filters[key];
             }
            // console.log(req.body.filters[key][0])
-            console.log(findArgs[key])
+            //console.log(findArgs[key])
 
         }
     }
@@ -115,7 +115,7 @@ router.post('/products', (req, res) => {
                 })
             })
     } else {
-        console.log(findArgs.continents);
+        //console.log(findArgs.continents);
         var sql_item = `SELECT * FROM item `;
            
         if(findArgs.continents)
@@ -132,7 +132,7 @@ router.post('/products', (req, res) => {
                 }
             }
         }
-        console.log(sql_item);
+        //console.log(sql_item);
 
         var sql_item_s = mysql.format(sql_item);
        
