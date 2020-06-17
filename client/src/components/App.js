@@ -34,8 +34,8 @@ function App() {
           <Route exact path="/user/cart" component={Auth(CartPage, true)} />
           <Route exact path="/history" component={Auth(HistoryPage, true)} />
           <Route exact path="/home" component={Auth(HomePage, null)} />
-          {/* <Route exact path="/community/:pageId/:pageId2/content/:pageId3" component={Auth(Comm_con, null)} />
-          <Route exact path="/community/:pageId/:pageId2" component={Auth(Community, null)} /> */}
+          <Route exact path="/community/:pageId/:pageId2/content/:pageId3" component={Auth(Comm_con, null)} />
+          {/*<Route exact path="/community/:pageId/:pageId2" component={Auth(Community, null)} /> */}
           <Route exact path="/community" component={Auth(Community_m, null)} />
         </Switch>
       </div>

@@ -10,6 +10,7 @@ import LandingPage from '../LandingPage/LandingPage';
 import setpage_ from './community_m.js'
 
 
+
 function Community(props) {
     
     const [loading, setLoading] = useState(true)
@@ -96,7 +97,9 @@ function Community(props) {
                         </tr>
                 ))}
                 </tbody>
-            </table>  
+            </table> 
+            
+             
             <p>
                 { Number(Id2) !== 0 ? <a href={b_l}>◀이전  </a> : <a></a> }
                 {rows.map((num) => (
@@ -104,6 +107,7 @@ function Community(props) {
                 ))}
                 { Number(Id2) !== list/20 ? <a href={n_l}>다음▶</a> : <a></a> }
             </p>
+
         </div>
     )
 }

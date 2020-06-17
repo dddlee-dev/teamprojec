@@ -14,7 +14,7 @@ var mysql = require('mysql');
 
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'uploads/')
+        cb(null, '')
     },
     filename: function (req, file, cb) {
         cb(null, `${Date.now()}_${file.originalname}`)
@@ -49,16 +49,65 @@ router.post('/desimages', (req, res) => {
 
 
 
-
+//상품 업로드
 router.post('/', (req, res) => {
 
-    //받아온 정보들을 DB에 넣어 준다.
-    const product = new Product(req.body)
+    // writer: props.user.userData._id,
+    // title: Title,
+    // description: Description,
+    // price: Price,
+    // images: Images,
+    // desimages: Desimages,
+    // continents: Continent
 
-    product.save((err) => {
-        if (err) return res.status(400).json({ success: false, err })
-        return res.status(200).json({ success: true })
-    })
+    // INSERT INTO item (item_cultureinfo, item_name, item_price, item_stock, item_category, item_cover, item_seller, item_selldate, item_lifetime, item_info, item_option) 
+    // VALUES ('-1', '사과', '10000', '50', '5', 'test.jpg', '5', 'current_timestamp().000000', '20', '사과', '사과 10개')
+
+    console.log(req.body);
+    var imagedes = "";
+    var i = 0;
+    for (i = 0; i < req.body.images.length; i++)
+    {
+        imagedes = imagedes + req.body.images[i]
+        if(i !== req.body.images.length -1 )
+        {
+            imagedes = imagedes + ";";
+        }
+    }
+    var desimagedes = "";
+    for (i = 0; i < req.body.desimages.length; i++)
+    {
+        desimagedes = desimagedes + req.body.desimages[i]
+        if(i !== req.body.desimages.length -1 )
+        {
+            desimagedes = desimagedes + ";";
+        }
+    }
+
+    db.db.query(`INSERT INTO item 
+    (item_cultureinfo, item_name, item_price, item_stock, item_category, 
+    item_cover, item_seller, item_lifetime, item_info, item_option) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [-1, req.body.title, req.body.price, 50, req.body.continents, 
+        imagedes, req.body.writer, 20, desimagedes, req.body.description],
+    function(error){
+        if(error){
+            return res.status(400).json({ success: false, err })
+        }
+        return res.status(200).json({
+            success: true
+        });
+        // res.writeHead(302, {Location: `/board/community/${filteredId}/0`});
+        // res.end();
+    }); 
+
+    //받아온 정보들을 DB에 넣어 준다.
+    // const product = new Product(req.body)
+
+    // product.save((err) => {
+    //     if (err) return res.status(400).json({ success: false, err })
+    //     return res.status(200).json({ success: true })
+    // })
 
 })
 
@@ -237,6 +286,7 @@ router.get('/products_by_id', (req, res) => {
         data.price = re[0].item_price;
         data.sold = 0;
         data.views = 3;
+        data.continents   = re[0].item_category;
         //image[0]= 'uploads/sun.jpg';
 
         var string = re[0].item_cover;

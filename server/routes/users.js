@@ -16,7 +16,7 @@ var MySQLStore = require('express-mysql-session')(session);
 //=================================
 
 router.get("/auth", auth, (req, res) => {
-    console.log("auth <");
+    //console.log("auth <");
     res.status(200).json({
         _id: req.session.user_num,
         isAdmin: req.session.authority === 0 ? true : false , 
