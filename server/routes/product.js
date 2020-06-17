@@ -282,6 +282,7 @@ router.get('/products_by_id', (req, res) => {
         var image = new Array();
         var image2 = new Array();
         
+        data._id=productIds;
         data.title=re[0].item_name;
         data.price = re[0].item_price;
         data.sold = 0;

@@ -229,51 +229,99 @@ router.get("/logout", auth, (req, res) => {
 
 router.post("/addToCart", auth, (req, res) => {
 
-    //먼저  User Collection에 해당 유저의 정보를 가져오기 
-    User.findOne({ _id: req.user._id },
-        (err, userInfo) => {
+    //INSERT INTO `cart` (`cart_num`, `cart_user_num`, `cart_item_num`, `cart_item_amount`, `cart_use`) 
+    //VALUES ('1', '8', '1', '2', '1');
+    var user_num = req.session.user_num;
+    var item_num = req.body.productId;
+    //console.log(req);
 
-            // 가져온 정보에서 카트에다 넣으려 하는 상품이 이미 들어 있는지 확인 
+    // SELECT cart_item_amount,item_name, item_price, item_cover  
+    // FROM cart join  item on item_num = cart_item_num 
+    // WHERE cart_user_num = 8 and cart_use = 1
 
-            let duplicate = false;
-            userInfo.cart.forEach((item) => {
-                if (item.id === req.body.productId) {
-                    duplicate = true;
+    //SELECT cart_item_amount FROM cart WHERE cart_user_num=1 and cart_use= 1 and cart_item_num=2
+
+    db.db.query(`SELECT cart_item_amount FROM cart WHERE cart_user_num=${user_num} and cart_use= 1 and cart_item_num=${item_num}`, 
+    function(err,results){
+        if(results == '' ||results ==  null ||results ==  undefined ||results ==  0 || results == NaN) 
+        {
+            db.db.query(`INSERT INTO cart 
+            (cart_user_num, cart_item_num, cart_item_amount, cart_use) 
+            VALUES   (?, ?, ?, ?)`,
+            [user_num, item_num, 1, 1],
+            function(error){
+                if(error){
+                    console.log(error);
+                    return res.json({ success: false, error });
+                    throw error;
                 }
-            })
+                return res.status(200).json({
+                    success: true
+                });
+            }); 
+        }
+        else{
+            db.db.query(`UPDATE cart
+            SET RoomNum = ${results.cart_item_amount + 1}
+            WHERE cart_user_num=${user_num} and cart_use= 1 and cart_item_num=${item_num}
+            `,
+            function(error){
+                if(error){
+                    console.log(error);
+                    return res.json({ success: false, error });
+                    throw error;
+                }
+                return res.status(200).json({
+                    success: true
+                });
+            }); 
+        }
 
-            //상품이 이미 있을때
-            if (duplicate) {
-                User.findOneAndUpdate(
-                    { _id: req.user._id, "cart.id": req.body.productId },
-                    { $inc: { "cart.$.quantity": 1 } },
-                    { new: true },
-                    (err, userInfo) => {
-                        if (err) return res.status(200).json({ success: false, err })
-                        res.status(200).send(userInfo.cart)
-                    }
-                )
-            }
-            //상품이 이미 있지 않을때 
-            else {
-                User.findOneAndUpdate(
-                    { _id: req.user._id },
-                    {
-                        $push: {
-                            cart: {
-                                id: req.body.productId,
-                                quantity: 1,
-                                date: Date.now()
-                            }
-                        }
-                    },
-                    { new: true },
-                    (err, userInfo) => {
-                        if (err) return res.status(400).json({ success: false, err })
-                        res.status(200).send(userInfo.cart)
-                    }
-                )
-            }
+    // //먼저  User Collection에 해당 유저의 정보를 가져오기 
+    // User.findOne({ _id: req.user._id },
+    //     (err, userInfo) => {
+
+    //         // 가져온 정보에서 카트에다 넣으려 하는 상품이 이미 들어 있는지 확인 
+
+    //         let duplicate = false;
+    //         userInfo.cart.forEach((item) => {
+    //             if (item.id === req.body.productId) {
+    //                 duplicate = true;
+    //             }
+    //         })
+
+    //         //상품이 이미 있을때
+    //         if (duplicate) {
+    //             User.findOneAndUpdate(
+    //                 { _id: req.user._id, "cart.id": req.body.productId },
+    //                 { $inc: { "cart.$.quantity": 1 } },
+    //                 { new: true },
+    //                 (err, userInfo) => {
+    //                     if (err) return res.status(200).json({ success: false, err })
+    //                     res.status(200).send(userInfo.cart)
+    //                 }
+    //             )
+    //         }
+    //         //상품이 이미 있지 않을때 
+    //         else {
+    //             User.findOneAndUpdate(
+    //                 { _id: req.user._id },
+    //                 {
+    //                     $push: {
+    //                         cart: {
+    //                             id: req.body.productId,
+    //                             quantity: 1,
+    //                             date: Date.now()
+    //                         }
+    //                     }
+    //                 },
+    //                 { new: true },
+    //                 (err, userInfo) => {
+    //                     if (err) return res.status(400).json({ success: false, err })
+    //                     res.status(200).send(userInfo.cart)
+    //                 }
+    //             )
+    //         }
         })
 });
 
