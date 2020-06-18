@@ -19,6 +19,12 @@ function RightMenu(props) {
     });
   };
 
+  console.log("log = " + user);
+  //console.log(user.userData.cart);
+  console.log((user.userData ));
+  //console.log((!user.userData.isAuth));
+  console.log((user.userData && !user.userData.isAuth));
+
   if (user.userData && !user.userData.isAuth) {
     return (
       <Menu mode={props.mode}>

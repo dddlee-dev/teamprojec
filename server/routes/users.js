@@ -17,6 +17,7 @@ var MySQLStore = require('express-mysql-session')(session);
 
 router.get("/auth", auth, (req, res) => {
     //console.log("auth <");
+    
     res.status(200).json({
         _id: req.session.user_num,
         isAdmin: req.session.authority === 0 ? true : false , 
@@ -94,7 +95,7 @@ router.post("/login", (req, res) => {
 
     var id = req.body.email;
     var pw = req.body.password;
-    console.log(id);
+    //console.log(id);
    
 
     db.db.query(`SELECT user_num FROM user WHERE user_id=?`,
@@ -138,7 +139,27 @@ router.post("/login", (req, res) => {
                     req.session.user_num = login_res[0].user_num;
                     req.session.user_nickname = login_res[0].user_nickname;
                     req.session.is_Logined = true;
-                    req.session.cart = [];
+
+                    var cart = [];
+                    var user_num = login_res[0].user_num;
+                    db.db.query(`SELECT cart_item_num, cart_item_amount FROM cart WHERE cart_user_num=${user_num} and cart_use= 1`, 
+                    function(err,re){
+                        //console.log(re[0]);
+                        
+                        var data = new Object();
+                        for(var i = 0; i < re.length; i++)
+                        {
+                            data = new Object();
+                            data.id = re[i].cart_item_num;
+                            data.quantity = re[i].cart_item_amount;
+                            //console.log(data);
+                            cart.push(data);
+                        }
+                        //console.log(cart);
+                        
+                    });
+
+                    req.session.cart = cart;
                     req.session.history = [];
                     //console.log(login_res);
                     req.session.save(function(){
@@ -146,7 +167,7 @@ router.post("/login", (req, res) => {
                             
                             .status(200)
                             .json({
-                                loginSuccess: true, userId: id
+                                loginSuccess: true, userId: login_res[0].user_num
                             });
                     });
 
@@ -255,14 +276,28 @@ router.post("/addToCart", auth, (req, res) => {
                     return res.json({ success: false, error });
                     throw error;
                 }
-                return res.status(200).json({
-                    success: true
+                db.db.query(`SELECT cart_item_amount,cart_item_num FROM cart WHERE cart_user_num=${user_num} and cart_use= 1`, 
+                function(err,re){
+                    //console.log(re[0]);
+                    var cart = [];
+                    var data = new Object();
+                    for(var i = 0; i < re.length; i++)
+                    {
+                        data = new Object();
+                        data.id = re[i].cart_item_num;
+                        data.quantity = re[i].cart_item_amount;
+                        //console.log(data);
+                        cart.push(data);
+                    }
+                    //console.log(cart);
+                    res.status(200).send(cart);
                 });
+                
             }); 
         }
         else{
             db.db.query(`UPDATE cart
-            SET RoomNum = ${results.cart_item_amount + 1}
+            SET cart_item_amount = ${results[0].cart_item_amount + 1}
             WHERE cart_user_num=${user_num} and cart_use= 1 and cart_item_num=${item_num}
             `,
             function(error){
@@ -271,9 +306,22 @@ router.post("/addToCart", auth, (req, res) => {
                     return res.json({ success: false, error });
                     throw error;
                 }
-                return res.status(200).json({
-                    success: true
-                });
+                db.db.query(`SELECT cart_item_num, cart_item_amount FROM cart WHERE cart_user_num=${user_num} and cart_use= 1`, 
+                    function(err,re){
+                        //console.log(re[0]);
+                        var cart = [];
+                        var data = new Object();
+                        for(var i = 0; i < re.length; i++)
+                        {
+                            data = new Object();
+                            data.id = re[i].cart_item_num;
+                            data.quantity = re[i].cart_item_amount;
+                            //console.log(data);
+                            cart.push(data);
+                        }
+                        //console.log(cart);
+                        res.status(200).send(cart);
+                    });
             }); 
         }
 

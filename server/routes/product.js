@@ -257,16 +257,20 @@ router.get('/products_by_id', (req, res) => {
 
     let type = req.query.type
     let productIds = req.query.id
-
+    console.log(productIds);
     if (type === "array") {
         //id=123123123,324234234,324234234 이거를 
         //productIds = ['123123123', '324234234', '324234234'] 이런식으로 바꿔주기
         let ids = req.query.id.split(',')
         productIds = ids.map(item => {
+            console.log(item);
             return item
+            
         })
 
     }
+    
+    console.log(productIds);
 
     //productId를 이용해서 DB에서  productId와 같은 상품의 정보를 가져온다.
     var sql_item = `SELECT * FROM item WHERE item_num = ?;`;
@@ -282,7 +286,7 @@ router.get('/products_by_id', (req, res) => {
         var image = new Array();
         var image2 = new Array();
         
-        data._id=productIds;
+        data._id=re[0].item_num;
         data.title=re[0].item_name;
         data.price = re[0].item_price;
         data.sold = 0;
@@ -337,7 +341,7 @@ router.get('/products_by_id', (req, res) => {
             return res.status(200).send(product)
 
     });  
-
+    
 
     // Product.find({ _id: { $in: productIds } })
     //     .populate('writer')

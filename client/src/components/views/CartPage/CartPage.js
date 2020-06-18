@@ -17,10 +17,13 @@ function CartPage(props) {
         let cartItems = []
         //리덕스 User state안에 cart 안에 상품이 들어있는지 확인 
         if (props.user.userData && props.user.userData.cart) {
+            console.log(props.user.userData.cart.length)
             if (props.user.userData.cart.length > 0) {
                 props.user.userData.cart.forEach(item => {
+                    //console.log("id" + item.id)
                     cartItems.push(item.id)
                 })
+                console.log(cartItems)
                 dispatch(getCartItems(cartItems, props.user.userData.cart))
                     .then(response => { calculateTotal(response.payload) })
             }
@@ -67,6 +70,7 @@ function CartPage(props) {
             })
     }
 
+    console.log("cart " + props.user.userData);
 
 
     return (
