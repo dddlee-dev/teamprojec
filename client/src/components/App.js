@@ -17,7 +17,7 @@ import BoardPage from './views/BoardPage/BoardPage'
 import Community from './views/community/community.js'
 import Community_m from './views/community/community_m.js'
 import Comm_con from './views/community/comm_con.js'
-import Con from './views/community/con.js'
+import Cons from './views/community/cons.js'
 //null   Anyone Can go inside
 //true   only logged in user can go inside
 //false  logged in user can't go inside
@@ -38,7 +38,7 @@ function App() {
           <Route exact path="/home" component={Auth(HomePage, null)} />
           <Route exact path="/table" component={Auth(TablePage, null)} />
           <Route exact path="/board" component={Auth(BoardPage, null)} />
-          <Route exact path="/community/:pageId/:pageId2/content/:pageId3" component={Auth(Con, null)} />
+          <Route exact path="/community/:pageId/:pageId2/content/:pageId3" component={Auth(Cons, null)} />
           {/*<Route exact path="/community/:pageId/:pageId2" component={Auth(Community, null)} /> */}
           <Route exact path="/community/:pageId/:pageId2" component={Auth(Community, null)} />
 
