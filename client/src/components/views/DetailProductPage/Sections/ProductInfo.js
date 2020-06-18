@@ -1,9 +1,11 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Button, Descriptions, Row } from 'antd';
 import { useDispatch } from 'react-redux';
 import { addToCart } from '../../../../_actions/user_actions';
 
+
 function ProductInfo(props) {
+    const [Continent, setContinent] = useState(1)
     const dispatch = useDispatch();
 
 
@@ -17,12 +19,16 @@ function ProductInfo(props) {
 
     }
 
+    
+    const continentChangeHandler = (event) => {
+        setContinent(event.currentTarget.value)
+    }
+
     return (
         <div>
-            <Descriptions title="Product Info">
-                <Descriptions.Item label="Price">{props.detail.price}</Descriptions.Item>
+            <Descriptions title="상품 정보">
+                <Descriptions.Item label="가격">{props.detail.price}</Descriptions.Item>
                 <Descriptions.Item label="Sold">{props.detail.sold}</Descriptions.Item>
-                <Descriptions.Item label="View">{props.detail.views}</Descriptions.Item>
                 <Descriptions.Item label="Description">{props.detail.description}</Descriptions.Item>
             </Descriptions>
 
@@ -35,9 +41,6 @@ function ProductInfo(props) {
                     Add to Cart
                 </Button>
                 
-                <Button size="large" shape="round" type="danger" onClick={editclickHandler}>
-                    Edit
-                </Button>
                 </Row>
             </div>
 

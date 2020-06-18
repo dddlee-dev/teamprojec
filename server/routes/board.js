@@ -13,8 +13,87 @@ var path = require('path');
 var mysql = require('mysql');
 var cookie = require('cookie');
 
+router.get('comment/:pageId4', (req, res) => {
+    console.log('comment');
+
+    var filteredId = path.parse(req.params.pageId4).base;
+    var data = new Object();
+
+    var o = [] 
+
+    db.db.query(`SELECT board_title,board_time,user_nickname,board_view,board_info 
+    FROM board JOIN user ON user_num = board_witer WHERE board_category =  ${filteredId} `, function(err,results)
+    {
+
+
+        var leng = results.length;
+        for (var j = 0; j < leng ; j++)
+        {
+        
+        var title = results[j].board_title ;
+        var description = results[j].board_title ;
+        var nick = results[j].user_nickname;
+        var st = results[j].user_info;
+
+        //var time = results[0].board_time*1;
+        var date_ = new Date(results[j].board_time * 1);
+        var date = date_.getFullYear() +'-';
+        if(date_.getMonth() < 10) date = date + '0';
+        date = date + date_.getMonth() +'-';
+        if(date_.getDate() < 10) date = date + '0';
+        date = date + date_.getDate()+' ';
+        if(date_.getHours() < 10) date = date + '0';
+        date = date + date_.getHours()+':';
+        if(date_.getMinutes() < 10) date = date + '0';
+        date = date + date_.getMinutes()+':';
+        if(date_.getSeconds() < 10) date = date + '0';
+        date = date + date_.getSeconds();
+        
+
+
+        data.title = title;
+        if(st == null) st = 0;
+        var star = "";
+        for(var i = 0;i < 5; i++)
+        {   
+            if(i < Number(st)) 
+            {
+                star = star + `★`;
+            }
+            else 
+            {
+                star = star + `☆`;
+            }
+        }
+       
+        data.start = star;
+        data.description =description;
+        data.nick = nick;
+        data.date = date;
+        
+
+        if (!Array.isArray(o)) {
+            o = [];
+        }
+        o.push(data);
+
+    }
+        JSON.stringify(o);
+
+
+        console.log(o);
+        res.send([o]);
+
+
+
+        
+    });
+    
+});
+
+
 router.get('/:pageId/:pageId2', (req, res) => {
-    console.log('http://localhost:3000/community/-1/0');
+    //console.log('http://localhost:3000/community/-1/0');
     var filteredId = path.parse(req.params.pageId).base;
     var filteredId2 = path.parse(req.params.pageId2).base;
     var max;
@@ -145,5 +224,6 @@ router.get('/:pageId/:pageId2/:pageId3', (req, res) => {
     });
     
 });
+
 
 module.exports = router;

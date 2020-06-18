@@ -53,7 +53,7 @@ function UploadProductPage(props) {
         event.preventDefault();
 
 
-        if (!Title || !Description || !Price || !Continent || !Images ) {
+        if (!Title || !Description || !Price || !Continent || Images.length==0 || Desimages.length==0 ) {
             return alert(" 모든 값을 넣어주셔야 합니다.")
         }
 
