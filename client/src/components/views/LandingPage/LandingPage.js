@@ -70,10 +70,15 @@ function LandingPage() {
         return <Col lg={6} md={8} xs={24} key={index}>
             <a href={`/product/${product._id}`} >
             <Card style={{border:'1px solid black'}}>
-                <ImageSlider images={product.images} height='150px'/>
+                <ImageSlider images={product.images}/>
                 <Meta
                     title={product.title}
-                    description={`${product.price}원`}
+                    description={[
+                        <div>
+                            <p>{`${product.price}원`}</p>
+                            <p style={{ textAlign : 'right' }}>{`${product.continents}`}</p>
+                        </div>
+                    ]}
                 />
             </Card></a>
         </Col>
@@ -141,7 +146,7 @@ function LandingPage() {
     return (
         <div style={{ width: '75%', margin: '3rem auto' }}>
             <div style={{ textAlign: 'center' }}>
-                <h2>상품 목록 <Icon type="rocket" /> </h2>
+                <h2>상품 목록 </h2>
             </div>
 
             {/* Filter */}
@@ -161,13 +166,13 @@ function LandingPage() {
 
 
 
-            {/* Search */}
+            {/* Search
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', margin: '1rem auto' }}>
                 <SearchFeature
                     refreshFunction={updateSearchTerm}
                 />
-            </div>
+            </div> */}
 
             {/* Cards */}
 

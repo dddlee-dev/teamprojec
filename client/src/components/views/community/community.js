@@ -5,7 +5,7 @@ import { Icon, Col, Card, Carousel } from 'antd';
 import Meta from 'antd/lib/card/Meta';
 import ImageSlider from '../../utils/ImageSlider';
 import LandingPage from '../LandingPage/LandingPage';
-//import path from 'path';
+import path from 'path';
 //import { response } from 'express';
 import setpage_ from './community_m.js'
 
@@ -14,9 +14,12 @@ import setpage_ from './community_m.js'
 function Community(props) {
     
     const [loading, setLoading] = useState(true)
-        
-    const Id1 = props.Id1 
-    const Id2 = props.Id2
+
+    console.log (props.match)
+    const Id1 = props.match.params.pageId
+    const Id2 = props.match.params.pageId2
+    // const Id1 = props.Id1 
+    // const Id2 = props.Id2
     const s = props.sp
 
     const b = Number(Id2) - 1

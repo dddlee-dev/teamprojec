@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const { Product } = require("../models/Product");
 
+
 var db = require('../lib/db.js');
 var mysql = require('mysql');
 
@@ -14,7 +15,8 @@ var mysql = require('mysql');
 
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, '')
+        cb(null, 'uploads/')
+        //확인
     },
     filename: function (req, file, cb) {
         cb(null, `${Date.now()}_${file.originalname}`)
@@ -141,15 +143,12 @@ router.post('/products', (req, res) => {
             } else {
                 findArgs[key] = req.body.filters[key];
             }
-           // console.log(req.body.filters[key][0])
-            //console.log(findArgs[key])
 
         }
     }
 
 
     if (term) {
-        //console.log(term);
         Product.find(findArgs)
             .find({ $text: { $search: term } })
             .populate("writer")
@@ -164,90 +163,90 @@ router.post('/products', (req, res) => {
                 })
             })
     } else {
-        //console.log(findArgs.continents);
-        var sql_item = `SELECT * FROM item `;
+       //console.log(findArgs.continents);
+       var sql_item = `SELECT * FROM item `;
            
-        if(findArgs.continents)
-        {
-            sql_item = sql_item + `WHERE `
-            for(var i = 0; i < Object.keys(findArgs.continents).length ;i++)
-            {
-                var cate;
-                cate = findArgs.continents[i];
-                sql_item = sql_item + ` item_category = ${cate}`
-                if(i !==  Object.keys(findArgs.continents).length-1)
-                {
-                    sql_item = sql_item + ` OR`
-                }
-            }
-        }
-        //console.log(sql_item);
+       if(findArgs.continents)
+       {
+           sql_item = sql_item + `WHERE `
+           for(var i = 0; i < Object.keys(findArgs.continents).length ;i++)
+           {
+               var cate;
+               cate = findArgs.continents[i];
+               sql_item = sql_item + ` item_category = ${cate}`
+               if(i !==  Object.keys(findArgs.continents).length-1)
+               {
+                   sql_item = sql_item + ` OR`
+               }
+           }
+       }
+       //console.log(sql_item);
 
-        var sql_item_s = mysql.format(sql_item);
-       
-    
-        //db.db.query(`SELECT * FROM board WHERE board_category=?`, [filteredId], function(res_board){ 
-        db.db.query(sql_item_s , function(error, re){  
-            //console.log(re);
-            var leng = re.length;
-            //var leng = Object.keys(re).length;
-            //console.log(leng);
-            var productInfo = new Object();
-            for (var j = 0; j < leng ; j++)
-            {
-                
-                var data = new Object();
-                var image = new Array();
+       var sql_item_s = mysql.format(sql_item);
+      
+   
+       //db.db.query(`SELECT * FROM board WHERE board_category=?`, [filteredId], function(res_board){ 
+       db.db.query(sql_item_s , function(error, re){  
+           //console.log(re);
+           var leng = re.length;
+           //var leng = Object.keys(re).length;
+           //console.log(leng);
+           var productInfo = new Object();
+           for (var j = 0; j < leng ; j++)
+           {
+               
+               var data = new Object();
+               var image = new Array();
 
-                data._id = re[j].item_num;
-                data.title=re[j].item_name;
-                data.price = re[j].item_price;
+               data._id = re[j].item_num;
+               data.title=re[j].item_name;
+               data.price = re[j].item_price;
 
-                var string = re[j].item_cover;
-                var slice = string.split(';');
+               var string = re[j].item_cover;
+               var slice = string.split(';');
 
-                var i = 0;
-                while(i < slice.length){
-                    image[i] = "uploads/" + slice[i];
-                    i = i + 1;
-                }
+               var i = 0;
+               while(i < slice.length){
+                   image[i] = "uploads/" + slice[i];
+                   i = i + 1;
+               }
 
-                
-                data.images = image;
-                
-                // product._id
-                // product.images
-                // product.title
-                // product.price
+               
+               data.images = image;
+               
+               // product._id
+               // product.images
+               // product.title
+               // product.price
 
-                if (!Array.isArray(productInfo)) {
-                    productInfo = [];
-                }
-                
-                productInfo.push(data);
-            }
-            if (error) return res.json({ success: false, err })
-            return res.status(200).json({
-                            success: true, productInfo,
-                            postSize: productInfo.length
-                        })
-        });
+               if (!Array.isArray(productInfo)) {
+                   productInfo = [];
+               }
+               
+               productInfo.push(data);
+           }
+           if (error) return res.json({ success: false, err })
+           return res.status(200).json({
+                           success: true, productInfo,
+                           postSize: productInfo.length
+                       })
+       });
 
 
 
-        // Product.find(findArgs)
-        //     .populate("writer")
-        //     .sort([[sortBy, order]])
-        //     .skip(skip)
-        //     .limit(limit)
-        //     .exec((err, productInfo) => {
-        //         if (err) return res.status(400).json({ success: false, err })
-        //         return res.status(200).json({
-        //             success: true, productInfo,
-        //             postSize: productInfo.length
-        //         })
-        //     })
-    }
+       // Product.find(findArgs)
+       //     .populate("writer")
+       //     .sort([[sortBy, order]])
+       //     .skip(skip)
+       //     .limit(limit)
+       //     .exec((err, productInfo) => {
+       //         if (err) return res.status(400).json({ success: false, err })
+       //         return res.status(200).json({
+       //             success: true, productInfo,
+       //             postSize: productInfo.length
+       //         })
+       //     })
+   }
 
 })
 
@@ -337,8 +336,85 @@ router.get('/products_by_id', (req, res) => {
             // }
             console.log(product);
         
-        if (error) return res.status(400).send(err)
-            return res.status(200).send(product)
+
+            //덧글 추가
+            var filteredId = productIds
+            var data2 = new Object();
+        
+            var o = [] 
+        
+            db.db.query(`SELECT board_title,board_time,user_nickname,board_view,board_info 
+            FROM board JOIN user ON user_num = board_witer WHERE board_category =  ${filteredId} `, function(err,results)
+            {
+        
+        
+                var leng = results.length;
+                for (var j = 0; j < leng ; j++)
+                {
+                    data2 = new Object();
+                    var title = results[j].board_title ;
+                    var description = results[j].board_title ;
+                    var nick = results[j].user_nickname;
+                    var st = results[j].board_info;
+            
+                    //var time = results[0].board_time*1;
+                    var date_ = new Date(results[j].board_time * 1);
+                    var date = date_.getFullYear() +'-';
+                    if(date_.getMonth() < 10) date = date + '0';
+                    date = date + date_.getMonth() +'-';
+                    if(date_.getDate() < 10) date = date + '0';
+                    date = date + date_.getDate()+' ';
+                    if(date_.getHours() < 10) date = date + '0';
+                    date = date + date_.getHours()+':';
+                    if(date_.getMinutes() < 10) date = date + '0';
+                    date = date + date_.getMinutes()+':';
+                    if(date_.getSeconds() < 10) date = date + '0';
+                    date = date + date_.getSeconds();
+                    
+            
+            
+                    data2.title = title;
+                    if(st == null) st = 0;
+                    var star = "";
+                    for(var i = 0;i < 5; i++)
+                    {   
+                        
+                        if(i < Number(st)) 
+                        {
+                            star = star + `★`;
+                        }
+                        else 
+                        {
+                            star = star + `☆`;
+                        }
+                    }
+                
+                    data2.start = star;
+                    data2.description =description;
+                    data2.nick = nick;
+                    data2.date = date;
+                    
+            
+                    if (!Array.isArray(o)) {
+                        o = [];
+                    }
+                    o.push(data2);
+            
+                }
+                //JSON.stringify(o);
+        
+        
+                //console.log([product,o]);
+                if (error) return res.status(400).send(err)
+                return res.status(200).send([product,o])
+            });
+
+            //덧글 끝
+
+
+
+        // if (error) return res.status(400).send(err)
+        //     return res.status(200).send(product)
 
     });  
     

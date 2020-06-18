@@ -11,13 +11,12 @@ var mysql = require('mysql');
 var session = require('express-session');
 var MySQLStore = require('express-mysql-session')(session);
 
+
 //=================================
 //             User
 //=================================
 
 router.get("/auth", auth, (req, res) => {
-    //console.log("auth <");
-    
     res.status(200).json({
         _id: req.session.user_num,
         isAdmin: req.session.authority === 0 ? true : false , 
@@ -84,9 +83,9 @@ router.post("/register", (req, res) => {
         });
     });
     */
-});
+   });
 
-router.post("/login", (req, res) => {
+   router.post("/login", (req, res) => {
     //1 이메일 찾기
     //없으면 반환
     //있으면    비밀번호 비교

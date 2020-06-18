@@ -12,3 +12,5 @@ yarn-debug.kog*
 yarn-error.log*
 
 .vscode
+
+/client/src/components/views/community/con.js

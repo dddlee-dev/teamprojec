@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import ImageGallery from 'react-image-gallery';
-import { FaSun } from 'react-icons/fa';
+import { Icon, Col, Card, Row } from 'antd';
 
 function Productdes(props) {
 
     const [Desimages, setDesimages] = useState([])
-    //const [Desimage, setDesimage] = useState([])
 
     useEffect(() => {
 
@@ -13,38 +11,32 @@ function Productdes(props) {
             let desimages = []
 
             props.detail.desimages.map(item => {
-                desimages.push({
-                    original: `http://localhost:5000/${item}`,
-                    thumbnail: `http://localhost:5000/${item}`
-                })
+                desimages.push(`${item}`)
             })
             setDesimages(desimages)
-
-            // let desi = []
-            // desi.push('http://localhost:5000/uploads/sun.jpg');
-            // desi.push('http://localhost:5000/uploads/delivery.jpg');
-            // setDesimage(desi)
-        
         }
 
     }, [props.detail])
 
-    // if(props.detail.continents == 2)
-    // {
-    // return (
-    //     <div>
-    //         <ImageGallery items={Desimage} />
-    //         <ImageGallery items={Desimages} />
-            
-    //     </div>
-    // )
-    // }else{
+
+
     return (
         <div>
-            <ImageGallery items={Desimages} />
-        </div>
-        )
-    // }
+
+                {Desimages.map((desimage, index) => (
+                    <div>
+                        <Row gutter={[24,24]}>
+                            <Col key={index} span={24}>
+                                <img style={{width: '100%', height:'auto'}}
+                                    src={`http://localhost:5000/${desimage}`}/>
+                            </Col>
+                        </Row>
+                    </div>
+                ))}
+
+
+            </div>
+    )
 }
 
 export default Productdes

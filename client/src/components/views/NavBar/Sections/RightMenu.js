@@ -19,12 +19,6 @@ function RightMenu(props) {
     });
   };
 
-  console.log("log = " + user);
-  //console.log(user.userData.cart);
-  console.log((user.userData ));
-  //console.log((!user.userData.isAuth));
-  console.log((user.userData && !user.userData.isAuth));
-
   if (user.userData && !user.userData.isAuth) {
     return (
       <Menu mode={props.mode}>
@@ -39,13 +33,15 @@ function RightMenu(props) {
   } else {
     return (
       <Menu mode={props.mode}>
+
         <Menu.Item key="history">
-          <a href="/history">History</a>
+          <a href="/history">결제내역</a>
         </Menu.Item>
-        
+
+  
 
         <Menu.Item key="upload">
-          <a href="/product/upload">Upload</a>
+          <a href="/product/upload">상품업로드</a>
         </Menu.Item>
 
         <Menu.Item key="cart" style={{ paddingBottom: 3 }}>
@@ -57,7 +53,7 @@ function RightMenu(props) {
         </Menu.Item>
 
         <Menu.Item key="logout">
-          <a onClick={logoutHandler}>Logout</a>
+          <a onClick={logoutHandler}>로그아웃</a>
         </Menu.Item>
       </Menu>
     )
